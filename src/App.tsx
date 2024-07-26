@@ -13,6 +13,7 @@ function App() {
 
   const calculateCardNumber = (cardNumber: string): number => {
 
+    // eslint-disable-next-line
     if (!isNaN(cardNumber as any)) {
       return parseInt(cardNumber);
     } else {
@@ -42,7 +43,7 @@ function App() {
   while (currentIndex != 0) {
 
     // Pick a remaining element...
-    let randomIndex = Math.floor(Math.random() * currentIndex);
+    const randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
 
     // And swap it with the current element.
@@ -94,6 +95,7 @@ function App() {
   let index = 0;
   let lastCard: ICard | null = null;
 
+  // eslint-disable-next-line
   while (true) {
     const card = availableCards.shift() as ICard;
 
@@ -109,8 +111,8 @@ function App() {
 
   // Sort human cards
   availablePlayers[0].cardsHave.sort(function (a, b) {
-    let aColorIndex = allColors.findIndex(obj => obj === a.color)
-    let bColorIndex = allColors.findIndex(obj => obj === b.color)
+    const aColorIndex = allColors.findIndex(obj => obj === a.color)
+    const bColorIndex = allColors.findIndex(obj => obj === b.color)
 
     if (aColorIndex > bColorIndex) {
       return 1
@@ -124,6 +126,7 @@ function App() {
   const [allPlayers, setAllPlayers] = useState<IPlayer[]>(availablePlayers);
   const human = allPlayers.find(player => !player.isBot) as IPlayer;
 
+  // eslint-disable-next-line
   const [colorCard, setColorCard] = useState<ICard>(lastCard);
   const [playerIdTurn, setPlayerIdTurn] = useState<number>(1); // human first
   const [loading, setLoading] = useState<boolean>(false); // calculating
@@ -157,7 +160,7 @@ function App() {
     let allowedCardToChoose = bot.cardsHave;
 
     if (firstTurnCardColor) {
-      let sameColorCards = bot.cardsHave.filter(_card => _card.color === firstTurnCardColor);
+      const sameColorCards = bot.cardsHave.filter(_card => _card.color === firstTurnCardColor);
 
       if (sameColorCards.length > 0) {
         allowedCardToChoose = sameColorCards;
@@ -202,7 +205,7 @@ function App() {
       let maxCardCost = findCardValue(maxPlayer.cardOnBoard as ICard, firstColor);
 
       players.forEach(player => {
-        let cardCost = findCardValue(player.cardOnBoard as ICard, firstColor);
+        const cardCost = findCardValue(player.cardOnBoard as ICard, firstColor);
 
         if (maxCardCost < cardCost) {
           maxCardCost = cardCost;
@@ -227,7 +230,7 @@ function App() {
     if (allPlayers.findIndex(player => !player.cardOnBoard) === -1) {
       setLoading(true)
 
-      let winner = await calculateWinner(allPlayers);
+      const winner = await calculateWinner(allPlayers);
 
       // clear board and set turn to winner and add point
       let newAllPlayers = [...allPlayers];
@@ -279,6 +282,7 @@ function App() {
 
   useEffect(() => {
     playerTurn(playerIdTurn)
+    // eslint-disable-next-line
   }, [totalTurn]);
 
 
