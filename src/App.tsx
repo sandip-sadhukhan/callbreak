@@ -109,6 +109,7 @@ function App() {
   const [colorCard, setColorCard] = useState<ICard>(lastCard);
   const [playerIdTurn, setPlayerIdTurn] = useState<number>(1); // human first
   const [loading, setLoading] = useState<boolean>(false); // calculating
+  const [totalTurn, setTotalTurn] = useState<number>(1);
 
 
   const putCardOnBoard = (player_id: number, card: ICard) => {
@@ -239,32 +240,24 @@ function App() {
     }
 
     setPlayerIdTurn(nextPlayerId);
+    setTotalTurn(totalTurn => totalTurn + 1);
   }
 
   const playerTurn = async function (playerIdTurn: number) {
-    console.log("next player turn", playerIdTurn);
-
     if (playerIdTurn !== 1) {
       await botPlay(playerIdTurn);
       nextTurnPlay();
     }
-
   }
 
   useEffect(() => {
     playerTurn(playerIdTurn)
-  }, [playerIdTurn]);
+  }, [totalTurn]);
 
 
   const humanChoosedCard = async (card: ICard) => {
     putCardOnBoard(1, card)
     nextTurnPlay();
-    // Calculate who win
-
-    // add point then remove cards from board
-
-
-    // Then winner's turn
   }
 
 
