@@ -107,6 +107,20 @@ function App() {
     }
   }
 
+  // Sort human cards
+  availablePlayers[0].cardsHave.sort(function (a, b) {
+    let aColorIndex = allColors.findIndex(obj => obj === a.color)
+    let bColorIndex = allColors.findIndex(obj => obj === b.color)
+
+    if (aColorIndex > bColorIndex) {
+      return 1
+    } else if (aColorIndex < bColorIndex) {
+      return -1
+    } else {
+      return a.numberValue - b.numberValue;
+    }
+  });
+
   const [allPlayers, setAllPlayers] = useState<IPlayer[]>(availablePlayers);
   const human = allPlayers.find(player => !player.isBot) as IPlayer;
 
