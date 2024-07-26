@@ -1,5 +1,3 @@
-
-// import { Board, Card, Player, distributeAllCards, generateAllCards, shuffleCards } from './helpers'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CardComponent from './components/Card';
 import { useEffect, useState } from 'react';
@@ -8,8 +6,8 @@ import { ICard, IPlayer, allColors, allNumbers, cardColorType } from './types';
 
 function App() {
   // Config
-  const BOT_PLAY_SPEED = 10
-  const RESULT_LOADING_DELAY = 20
+  const BOT_PLAY_SPEED = 1000
+  const RESULT_LOADING_DELAY = 2000
 
   const availableCards: ICard[] = [];
 
@@ -24,7 +22,9 @@ function App() {
         K: 13,
         A: 14
       }
-      return costMap[cardNumber] as any as number;
+
+      const numberValue = costMap[cardNumber as "J" | "Q" | "K" | "A"];
+      return numberValue;
     }
   }
 
@@ -139,7 +139,20 @@ function App() {
 
   const botChooseCard = (player_id: number): ICard => {
     const bot = allPlayers.find(player => player.id === player_id) as IPlayer;
-    const card = bot.cardsHave[0] as ICard;
+
+    let allowedCardToChoose = bot.cardsHave;
+
+    if (firstTurnCardColor) {
+      let sameColorCards = bot.cardsHave.filter(_card => _card.color === firstTurnCardColor);
+
+      if (sameColorCards.length > 0) {
+        allowedCardToChoose = sameColorCards;
+      }
+    }
+
+    const randomIndex = Math.floor(Math.random() * allowedCardToChoose.length)
+
+    const card = allowedCardToChoose[randomIndex];
     return card;
   }
 
@@ -260,6 +273,19 @@ function App() {
     nextTurnPlay();
   }
 
+  const isAllowedCard = (card: ICard): boolean => {
+    if (!firstTurnCardColor) {
+      return true;
+    }
+
+    const sameColorCardExists = human.cardsHave.findIndex(_card => _card.color === firstTurnCardColor) !== -1;
+
+    if (!sameColorCardExists) {
+      return true;
+    }
+
+    return card.color === firstTurnCardColor;
+  }
 
   return (
     <main>
@@ -289,7 +315,7 @@ function App() {
 
             <div className='human-cards d-flex gap-2 flex-wrap'>
               {human.cardsHave.map(card =>
-                (<CardComponent key={card.key} card={card} disabled={loading || playerIdTurn !== 1} onClick={humanChoosedCard} />)
+                (<CardComponent key={card.key} card={card} disabled={loading || playerIdTurn !== 1 || !isAllowedCard(card)} onClick={humanChoosedCard} />)
               )}
             </div>
 
