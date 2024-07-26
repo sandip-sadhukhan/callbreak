@@ -7,6 +7,10 @@ import { ICard, IPlayer, allColors, allNumbers, cardColorType } from './types';
 
 
 function App() {
+  // Config
+  const BOT_PLAY_SPEED = 10
+  const RESULT_LOADING_DELAY = 20
+
   const availableCards: ICard[] = [];
 
   const calculateCardNumber = (cardNumber: string): number => {
@@ -110,9 +114,14 @@ function App() {
   const [playerIdTurn, setPlayerIdTurn] = useState<number>(1); // human first
   const [loading, setLoading] = useState<boolean>(false); // calculating
   const [totalTurn, setTotalTurn] = useState<number>(1);
+  const [firstTurnCardColor, setFirstTurnCardColor] = useState<cardColorType | null>(null);
 
 
   const putCardOnBoard = (player_id: number, card: ICard) => {
+    if (!firstTurnCardColor) {
+      setFirstTurnCardColor(card.color);
+    }
+
     let newAllPlayers = [...allPlayers];
 
     newAllPlayers = newAllPlayers.map((player) => {
@@ -140,7 +149,7 @@ function App() {
         const chosenCard = botChooseCard(player_id);
         putCardOnBoard(player_id, chosenCard)
         res();
-      }, 1000)
+      }, BOT_PLAY_SPEED)
     })
   }
 
@@ -160,7 +169,7 @@ function App() {
 
   const calculateWinner = (players: IPlayer[]): Promise<IPlayer> => {
     return new Promise<IPlayer>((res) => {
-      const firstColor = (players[0].cardOnBoard as ICard).color;
+      const firstColor = firstTurnCardColor as cardColorType;
 
       let maxPlayer = players[0];
       let maxCardCost = findCardValue(maxPlayer.cardOnBoard as ICard, firstColor);
@@ -176,7 +185,7 @@ function App() {
 
       setTimeout(function () {
         res(maxPlayer);
-      }, 1500)
+      }, RESULT_LOADING_DELAY)
     })
   }
 
@@ -187,39 +196,11 @@ function App() {
       nextPlayerId = 1;
     }
 
-    console.log("nextTurnPlay", playerIdTurn)
-
     // check if board has all 4 cards or not
     if (allPlayers.findIndex(player => !player.cardOnBoard) === -1) {
       setLoading(true)
 
-      let firstPlayer = allPlayers.find(_player => _player.id === nextPlayerId) as IPlayer;
-
-      nextPlayerId += 1;
-
-      if (nextPlayerId > 4) {
-        nextPlayerId = 1;
-      }
-
-      let secondPlayer = allPlayers.find(_player => _player.id === nextPlayerId) as IPlayer;
-
-      nextPlayerId += 1;
-
-      if (nextPlayerId > 4) {
-        nextPlayerId = 1;
-      }
-
-      let thirdPlayer = allPlayers.find(_player => _player.id === nextPlayerId) as IPlayer;
-
-      nextPlayerId += 1;
-
-      if (nextPlayerId > 4) {
-        nextPlayerId = 1;
-      }
-
-      let forthPlayer = allPlayers.find(_player => _player.id === nextPlayerId) as IPlayer;
-
-      let winner = await calculateWinner([firstPlayer, secondPlayer, thirdPlayer, forthPlayer]);
+      let winner = await calculateWinner(allPlayers);
 
       // clear board and set turn to winner and add point
       let newAllPlayers = [...allPlayers];
@@ -234,9 +215,28 @@ function App() {
       })
 
       setAllPlayers(newAllPlayers);
+      setFirstTurnCardColor(null);
 
       setLoading(false);
       nextPlayerId = winner.id;
+
+      // Is there any card left?
+      if (allPlayers[0].cardsHave.length === 0) {
+        // Who is winner?
+        let maxPoint = allPlayers[0].points;
+        let maxPlayer = allPlayers[0];
+
+        allPlayers.forEach(_player => {
+          if (_player.points > maxPoint) {
+            maxPlayer = _player;
+            maxPoint = _player.points;
+          }
+        })
+
+        alert(`${maxPlayer.name} is winner and get ${maxPoint} points.`);
+        window.location.reload();
+        return;
+      }
     }
 
     setPlayerIdTurn(nextPlayerId);
