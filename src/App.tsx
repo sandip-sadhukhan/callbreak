@@ -127,7 +127,7 @@ function App() {
   const human = allPlayers.find(player => !player.isBot) as IPlayer;
 
   // eslint-disable-next-line
-  const [colorCard, setColorCard] = useState<ICard>(lastCard);
+  const [colorCard, _] = useState<ICard>(lastCard);
   const [playerIdTurn, setPlayerIdTurn] = useState<number>(1); // human first
   const [loading, setLoading] = useState<boolean>(false); // calculating
   const [totalTurn, setTotalTurn] = useState<number>(1);
